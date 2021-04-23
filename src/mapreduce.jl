@@ -4,6 +4,8 @@
 # - serial version for lower latency
 # - block-stride loop to delay need for second kernel launch
 
+using OffsetArrays
+
 # Reduce a value across a warp
 @inline function reduce_warp(op, val)
     assume(warpsize() == 32)
@@ -137,7 +139,7 @@ if VERSION < v"1.5.0-DEV.748"
         d <= N ? axes(bc)[d] : Base.OneTo(1)
 end
 
-function GPUArrays.mapreducedim!(f::F, op::OP, R::AnyCuArray{T},
+function GPUArrays.mapreducedim!(f::F, op::OP, R::Union{AnyCuArray{T}, OffsetArray{T, <:Any, <:AnyCuArray{T}},
                                  A::Union{AbstractArray,Broadcast.Broadcasted};
                                  init=nothing) where {F, OP, T}
     Base.check_reducedims(R, A)
